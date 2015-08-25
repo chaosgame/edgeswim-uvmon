@@ -6,7 +6,7 @@
   "main": "index.js",
   "repository": "https://github.com/chaosgame/edgeswim-uvmon",
   "dependencies": {
-    "nan": "^2.0.5",
+    "nan": "^2.0.5"
   },
   "devDependencies": {
     "mocha": "~1.17.0",
