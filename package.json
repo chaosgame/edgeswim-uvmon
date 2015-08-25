@@ -1,10 +1,10 @@
 {
-  "name": "nodefly-uvmon",
-  "version": "0.0.7",
+  "name": "edgeswim-uvmon",
+  "version": "0.0.8",
   "author": "Nodefly <support@nodefly.com>",
   "homepage": "http://www.nodefly.com",
   "main": "index.js",
-  "repository": "https://github.com/NodeFly/nodefly-uvmon",
+  "repository": "https://github.com/chaosgame/edgeswim-uvmon",
   "devDependencies": {
     "nan": "^2.0.5",
     "mocha": "~1.17.0",
