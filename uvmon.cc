@@ -3,6 +3,8 @@
 #include <uv.h>
 #include <string.h> /* memset */
 
+#include <nan.h>
+
 using namespace v8;
 
 static uv_check_t check_handle;
@@ -20,8 +22,8 @@ mon_stats_t uv_run_stats;
  * This is the callback that we register to be called at the end of 
  * the uv_run() loop.
  */
-static void check_cb(uv_check_t* handle, int status) {
-if (handle == NULL) {
+static void check_cb(uv_check_t* handle) {
+  if (handle == NULL) {
     return;
   }
   if (handle->loop == NULL) {
@@ -39,14 +41,14 @@ if (handle == NULL) {
 #endif
 
   uint32_t delta;
-  
+
   /* shouldn't have to check for this, but I swear I saw it happen once */
   if (now < loop->time) {
     delta = 0;
   } else {
     delta = (now - loop->time);
   }
-  
+
   uv_run_stats.count++;
   uv_run_stats.sum_ms += delta;
   if (delta > uv_run_stats.slowest_ms) {
@@ -58,19 +60,19 @@ if (handle == NULL) {
 /* 
  * Returns the data gathered from the uv_run() loop.
  * Resets all counters when called.
- */ 
-Handle<Value> getData(const Arguments& args) {
-  HandleScope scope;
-  
-  Local<Object> obj = Object::New();
-  obj->Set(String::NewSymbol("count"), Integer::New(uv_run_stats.count));
-  obj->Set(String::NewSymbol("sum_ms"), Integer::New(uv_run_stats.sum_ms));
-  obj->Set(String::NewSymbol("slowest_ms"),
-           Integer::New(uv_run_stats.slowest_ms));
-  
+ */
+NAN_METHOD(getData) {
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+
+  Nan::Set(obj, Nan::New<v8::String>("count").ToLocalChecked(),
+      Nan::New<v8::Number>(uv_run_stats.count));
+  Nan::Set(obj, Nan::New<v8::String>("sum_ms").ToLocalChecked(),
+      Nan::New<v8::Number>(uv_run_stats.sum_ms));
+  Nan::Set(obj, Nan::New<v8::String>("slowest_ms").ToLocalChecked(),
+      Nan::New<v8::Number>(uv_run_stats.slowest_ms));
   memset(&uv_run_stats, 0, sizeof(uv_run_stats));
-  
-  return scope.Close(obj);
+
+  info.GetReturnValue().Set(obj);
 }
 
 
@@ -78,12 +80,10 @@ Handle<Value> getData(const Arguments& args) {
  * Stops the check callback.
  * Only used when loading multiple instances of uvmon (ie testing).
  */
-Handle<Value> stop(const Arguments& arg) {
-  HandleScope scope;
-
+NAN_METHOD(stop) {
   uv_check_stop(&check_handle);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().SetUndefined();
 }
 
 
@@ -92,14 +92,14 @@ Handle<Value> stop(const Arguments& arg) {
  */
 void init(Handle<Object> target) {
   memset(&uv_run_stats, 0, sizeof(uv_run_stats));
-  
+
   /* set up uv_run callback */
   uv_check_init(uv_default_loop(), &check_handle);
   uv_unref(reinterpret_cast<uv_handle_t*>(&check_handle));
   uv_check_start(&check_handle, check_cb);
-  
-  NODE_SET_METHOD(target, "getData", getData);
-  NODE_SET_METHOD(target, "stop", stop);
+
+  Nan::SetMethod(target, "getData", getData);
+  Nan::SetMethod(target, "stop", stop);
 }
 
 NODE_MODULE(uvmon, init);

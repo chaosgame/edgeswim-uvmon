@@ -7,10 +7,7 @@ describe('Module loading from various locations', function() {
 
   var base = process.cwd();
   var buildPath = version.localBuild;
-  var compiledPath = version.bundledBuild;
-  var compiledFile = path.resolve(base, compiledPath + '.node');
   var buildFile = path.resolve(base, buildPath + '.node');
-  var compiledModule = path.resolve(base, compiledPath);
   var buildModule = path.resolve(base, buildPath);
   var baseModule = path.resolve(base, 'index.js');
 
@@ -33,24 +30,6 @@ describe('Module loading from various locations', function() {
   });
 
   it('loads from index.js when built locally', function(done) {
-    loadAndTest(baseModule, done);
-  });
-
-  it('gets moved to ./compiled/... subdirectory', function(done) {
-    fs.rename(buildFile, compiledFile, function(err) {
-      if (err) {
-        throw err;
-      } else {
-        done();
-      }
-    });
-  });
-
-  it('works from ' + compiledModule, function(done) {
-    loadAndTest(compiledModule, done);
-  });
-
-  it('loads from index.js when precompiled', function(done) {
     loadAndTest(baseModule, done);
   });
 });

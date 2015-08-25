@@ -6,6 +6,7 @@
   "main": "index.js",
   "repository": "https://github.com/NodeFly/nodefly-uvmon",
   "devDependencies": {
+    "nan": "^2.0.5",
     "mocha": "~1.17.0",
     "should": "~3.1.0"
   },
