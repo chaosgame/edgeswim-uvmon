@@ -17,8 +17,10 @@ describe('Module loading from various locations', function() {
     uvmon.getData.should.be.type('function');
     var ret = uvmon.getData();
     ret.should.have.property('count');
-    ret.should.have.property('sum_ms');
-    ret.should.have.property('slowest_ms');
+    ret.should.have.property('avg_ms');
+    ret.should.have.property('p50_ms');
+    ret.should.have.property('p95_ms');
+    ret.should.have.property('max_ms');
     // call this to properly unload the check_cb - only need it when we're
     // doing funky multiple versions of this module at once
     uvmon.stop();
