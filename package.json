@@ -1,6 +1,6 @@
 {
   "name": "edgeswim-uvmon",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Nodefly <support@nodefly.com>",
   "homepage": "http://www.nodefly.com",
   "main": "index.js",

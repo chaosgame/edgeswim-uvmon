@@ -129,7 +129,7 @@ void CpuProfilerWrapper::LogFilteredProfile(
 
   uv_fs_t *write_req = new uv_fs_t;
 
-  uv_buf_t bufs[0];
+  uv_buf_t bufs[1];
   bufs[0].len = stack.str().size();
   bufs[0].base = new char[bufs[0].len];
   std::memcpy(bufs[0].base, stack.str().data(), bufs[0].len);
