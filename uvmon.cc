@@ -80,7 +80,7 @@ NAN_METHOD(stopProfiling) {
  */
 NAN_METHOD(startProfiling) {
   if (info.Length() != 1 || !info[0]->IsString()) {
-    return Nan::ThrowTypeError("Expected startProfiling(filename)");
+    return Nan::ThrowError("Expected startProfiling(filename)");
   }
 
   profiler_wrapper.Start(*Nan::Utf8String(info[0]));

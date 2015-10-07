@@ -1,6 +1,6 @@
 {
   "name": "edgeswim-uvmon",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Nodefly <support@nodefly.com>",
   "homepage": "http://www.nodefly.com",
   "main": "index.js",
@@ -9,8 +9,7 @@
     "nan": "^2.0.5"
   },
   "devDependencies": {
-    "mocha": "~1.17.0",
-    "should": "~3.1.0"
+    "nodeunit": "0.9.1"
   },
   "scripts": {
     "pretest": "node-gyp rebuild",
@@ -18,7 +17,7 @@
     "install" : "node-gyp rebuild"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.12.0"
   },
   "license": "MIT"
 }
