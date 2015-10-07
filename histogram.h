@@ -5,12 +5,8 @@
 #include <cmath>
 #include <vector>
 
-class BucketingHistogram {
+class LogarithmicBucketingHistogram {
 private:
-  const double bucket_min_;
-  const double bucket_max_;
-  const double bucket_step_;
-
   double sample_min_;
   double sample_max_;
   double sample_sum_;
@@ -21,7 +17,7 @@ private:
 public:
   /**
    */
-  BucketingHistogram(double min, double max, double step);
+  LogarithmicBucketingHistogram(int num_buckets);
 
   /**
    */

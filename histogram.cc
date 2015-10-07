@@ -2,17 +2,15 @@
 #include "histogram.h"
 
 #include <vector>
+#include <cmath>
 
-BucketingHistogram::BucketingHistogram(double min, double max, double step)
-  : bucket_min_(min)
-  , bucket_max_(max)
-  , bucket_step_(step)
-  , sample_sum_(0.0)
+LogarithmicBucketingHistogram::LogarithmicBucketingHistogram(int num_buckets)
+  : sample_sum_(0.0)
   , sample_count_(0)
-  , vector_(std::ceil((max - min) / step) + 2) {
+  , vector_(num_buckets + 1) {
 }
 
-void BucketingHistogram::Reset() {
+void LogarithmicBucketingHistogram::Reset() {
   sample_count_ = 0;
   sample_sum_ = 0.0;
   sample_min_ = 0.0;
@@ -21,15 +19,11 @@ void BucketingHistogram::Reset() {
   std::fill(vector_.begin(), vector_.end(), std::make_pair(0.0, 0));
 }
 
-void BucketingHistogram::Sample(double value) {
-  size_t bucket;
+void LogarithmicBucketingHistogram::Sample(double value) {
+  size_t bucket = log2(value);
 
-  if (value > bucket_max_) {
-    bucket = vector_.size() - 2;
-  } else if (value < bucket_min_) {
+  if (bucket >= vector_.size()) {
     bucket = vector_.size() - 1;
-  } else {
-    bucket = (size_t)((value - bucket_min_) / bucket_step_);
   }
 
   sample_sum_ += value;
@@ -47,7 +41,7 @@ void BucketingHistogram::Sample(double value) {
   vector_[bucket].second++;
 }
 
-double BucketingHistogram::GetApproximatePercentile(size_t percentile) {
+double LogarithmicBucketingHistogram::GetApproximatePercentile(size_t percentile) {
   size_t necessary_samples = std::ceil(percentile / 100.0 * sample_count_);
   size_t samples = 0;
 
