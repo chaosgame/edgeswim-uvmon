@@ -3,6 +3,8 @@ var child_process = require('child_process')
 var fs = require('fs')
 var path = require('path')
 
+require('segfault-handler').registerHandler()
+
 var nodeunit = require('nodeunit')
 var uvmon = require('../index.js')
 
@@ -55,7 +57,7 @@ exports.testProfilingOk = function (test) {
    * stopped uvmon before the slow event loop had a chance to complete
    * and the file will be empty.
    */
-  setImmediate(function () {
+  setTimeout(function () {
     uvmon.stopProfiling()
 
     var data = uvmon.getData()
@@ -64,5 +66,5 @@ exports.testProfilingOk = function (test) {
     var stats = fs.statSync(VALID_LOGFILE)
     test.ok(stats.size > 0)
     test.done()
-  })
+  }, 10)
 }

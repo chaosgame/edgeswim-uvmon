@@ -1,7 +1,7 @@
 # edgeswim-uvmon #
 
-Native plugin monitoring the libuv event loop.  Used as part of strong-agent.
+[![NPM](https://nodei.co/npm/edgeswim-uvmon.png?mini=true)](https://nodei.co/npm/edgeswim-uvmon/)
+[![Build Status](https://api.travis-ci.org/chaosgame/edgeswim-uvmon.svg?branch=master)](http://travis-ci.org/chaosgame/edgeswim-uvmon)
 
-Check builderror.log after install if the module isn't working correctly.
+Native plugin monitoring the libuv event loop.
 
-Works on node 0.8.x and up.
