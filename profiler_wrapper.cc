@@ -1,5 +1,6 @@
 #include "profiler_wrapper.h"
 
+#include <iostream>
 #include <sstream>
 #include <stack>
 
@@ -88,51 +89,52 @@ void CpuProfilerWrapper::LogFilteredProfile(
    *
    * https://github.com/brendangregg/FlameGraph/blob/master/stackcollapse.pl
    */
-  std::stringstream stack;
+  std::stringstream s;
 
   for (std::map<int, int>::iterator i = filtered_hits.begin(); i != filtered_hits.end(); ++i) {
     int node_id = i->first;
     int hits = i->second;
 
     for (int i = node_id; i != root_id; i = extra_data[i].parent->GetNodeId()) {
-      if (i != node_id) stack << ";";
+      if (i != node_id) s << ";";
 
       if (extra_data[i].function_name.length()) {
-        stack << extra_data[i].function_name;
+        s << extra_data[i].function_name;
       } else {
-        stack << "[unknown]";
+        s << "[unknown]";
       }
 
-      stack << "(";
+      s << "(";
 
       if (extra_data[i].file_name.length()) {
-        stack << extra_data[i].file_name;
+        s << extra_data[i].file_name;
       } else {
-        stack << "?";
+        s << "?";
       }
 
-      stack << ":";
+      s << ":";
 
       if (extra_data[i].node->GetLineNumber() != v8::CpuProfileNode::kNoLineNumberInfo) {
-        stack << extra_data[i].node->GetLineNumber();
+        s << extra_data[i].node->GetLineNumber();
       } else {
-        stack << "?";
+        s << "?";
       }
 
-      stack << ")";
+      s << ")";
     }
 
-    stack << " ";
-    stack << hits * sampling_interval_ms_;
-    stack << "\n";
+    s << " ";
+    s << hits * sampling_interval_ms_;
+    s << "\n";
   }
 
   uv_fs_t *write_req = new uv_fs_t;
+  std::string stack = s.str();
 
   uv_buf_t bufs[1];
-  bufs[0].len = stack.str().size();
+  bufs[0].len = stack.size();
   bufs[0].base = new char[bufs[0].len];
-  std::memcpy(bufs[0].base, stack.str().data(), bufs[0].len);
+  std::memcpy(bufs[0].base, stack.data(), bufs[0].len);
 
   uv_fs_write(
     uv_default_loop(),
@@ -152,7 +154,7 @@ void CpuProfilerWrapper::LogWrittenCallback(uv_fs_t *write_req) {
 
 void CpuProfilerWrapper::Start(char *filename) {
   if (is_profiling_) {
-    return;
+    return Nan::ThrowError("startProfiling() called when profiling is already enabled");
   }
 
   profiler_ = v8::Isolate::GetCurrent()->GetCpuProfiler();
@@ -167,6 +169,16 @@ void CpuProfilerWrapper::Start(char *filename) {
     0644,
     NULL);
   uv_fs_req_cleanup(&open_req);
+
+  if (log_file_ < 0) {
+
+    std::stringstream e;
+    e << "Could not open file \"" << filename << "\" with error \"" << uv_strerror(log_file_) << "\"";
+    std::string error = e.str();
+
+    log_file_ = 0;
+    return Nan::ThrowError(error.data());
+  }
 
   v8::Local<v8::String> title = Nan::New<v8::String>("white").ToLocalChecked();
   profiler_->StartProfiling(title, /* record_samples= */ true);
@@ -196,7 +208,7 @@ void CpuProfilerWrapper::Stop() {
   uv_fs_req_cleanup(&close_req);
 
   profiler_->StopProfiling(title);
-  is_profiling_ = true;
+  is_profiling_ = false;
 }
 
 
