@@ -1,11 +1,11 @@
 #include "profiler_wrapper.h"
 
-#include <iostream>
 #include <sstream>
 #include <stack>
 
 std::map<int, CpuProfilerWrapper::ExtraNodeData> CpuProfilerWrapper::BuildExtraNodeData(v8::CpuProfile *profile) {
   std::map<int, CpuProfilerWrapper::ExtraNodeData> extra_node_data;
+  Nan::HandleScope scope;
 
   std::stack<std::pair<const v8::CpuProfileNode*, const v8::CpuProfileNode*> > state;
   state.push(std::make_pair(static_cast<const v8::CpuProfileNode*>(NULL), profile->GetTopDownRoot()));
@@ -131,23 +131,22 @@ void CpuProfilerWrapper::LogFilteredProfile(
   uv_fs_t *write_req = new uv_fs_t;
   std::string stack = s.str();
 
-  uv_buf_t bufs[1];
-  bufs[0].len = stack.size();
-  bufs[0].base = new char[bufs[0].len];
-  std::memcpy(bufs[0].base, stack.data(), bufs[0].len);
+  char *buf = new char[stack.size()];
+  std::memcpy(buf, stack.data(), stack.size());
+  uv_buf_t uvbuf = uv_buf_init(buf, stack.size());
 
   uv_fs_write(
     uv_default_loop(),
     write_req,
     /* uv_file */ log_file_,
-    bufs,
+    &uvbuf,
     /* nbufs= */ 1,
     /* offset= */ -1,
     CpuProfilerWrapper::LogWrittenCallback);
 }
 
 void CpuProfilerWrapper::LogWrittenCallback(uv_fs_t *write_req) {
-  delete[] write_req->bufs[0].base;
+  if (write_req->bufs) delete[] write_req->bufs[0].base;
   uv_fs_req_cleanup(write_req);
   delete write_req;
 }
@@ -216,6 +215,8 @@ v8::CpuProfile *CpuProfilerWrapper::Sample() {
   if (!is_profiling_) {
     return NULL;
   }
+
+  Nan::HandleScope scope;
 
   v8::Local<v8::String> old_title;
   v8::Local<v8::String> new_title;

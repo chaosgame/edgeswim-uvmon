@@ -1,15 +1,15 @@
 {
   "name": "edgeswim-uvmon",
-  "version": "0.2.3",
-  "author": "Nodefly <support@nodefly.com>",
-  "homepage": "http://www.nodefly.com",
+  "version": "0.2.4",
+  "author": "Nathan Lawrence <ch@osga.me>",
   "main": "index.js",
   "repository": "https://github.com/chaosgame/edgeswim-uvmon",
   "dependencies": {
-    "nan": "^2.0.5"
+    "nan": "2.0.9"
   },
   "devDependencies": {
-    "nodeunit": "0.9.1"
+    "nodeunit": "0.9.1",
+    "segfault-handler": "0.2.5"
   },
   "scripts": {
     "pretest": "node-gyp rebuild",
