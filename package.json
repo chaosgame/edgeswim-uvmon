@@ -1,6 +1,6 @@
 {
   "name": "edgeswim-uvmon",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": "Nathan Lawrence <ch@osga.me>",
   "main": "index.js",
   "repository": "https://github.com/chaosgame/edgeswim-uvmon",

@@ -13,11 +13,16 @@
 
 using namespace v8;
 
+static const int SLOW_TICK_DURATION = 100;
+static const int PROFILING_DURATION = 10000;
+
 static uv_check_t check_handle;
 
 static uint64_t last_ticked_at_ms;
 
-static BucketingHistogram loop_stats(0, 1000, 10);
+static LogarithmicBucketingHistogram loop_stats(64);
+
+static int slow_tick_count = 0;
 
 static CpuProfilerWrapper profiler_wrapper(10);
 
@@ -31,14 +36,18 @@ static void check_run(uv_check_t* handle) {
   uint64_t tick_delta_ms = now_ms - last_ticked_at_ms;
 
   uint64_t profiling_delta_ms = profiler_wrapper.GetCurrentProfilingDuration();
-  if (profiler_wrapper.IsProfiling() && (profiling_delta_ms > 10000 || tick_delta_ms > 100)) {
+  if (profiler_wrapper.IsProfiling() && (profiling_delta_ms > PROFILING_DURATION || tick_delta_ms > SLOW_TICK_DURATION)) {
     v8::CpuProfile *profile = profiler_wrapper.Sample();
 
-    if (tick_delta_ms > 100) {
+    if (tick_delta_ms > SLOW_TICK_DURATION) {
       profiler_wrapper.LogFilteredProfile(profile, now_ms, last_ticked_at_ms);
     }
 
     profile->Delete();
+  }
+
+  if (tick_delta_ms > SLOW_TICK_DURATION) {
+    slow_tick_count++;
   }
 
   loop_stats.Sample(tick_delta_ms);
@@ -54,6 +63,8 @@ NAN_METHOD(getData) {
 
   Nan::Set(obj, Nan::New<v8::String>("count").ToLocalChecked(),
       Nan::New<v8::Number>(loop_stats.GetSampleCount()));
+  Nan::Set(obj, Nan::New<v8::String>("slow_tick_count").ToLocalChecked(),
+      Nan::New<v8::Number>(slow_tick_count));
   Nan::Set(obj, Nan::New<v8::String>("p50_ms").ToLocalChecked(),
       Nan::New<v8::Number>(loop_stats.GetApproximatePercentile(50)));
   Nan::Set(obj, Nan::New<v8::String>("p95_ms").ToLocalChecked(),
@@ -65,6 +76,7 @@ NAN_METHOD(getData) {
   Nan::Set(obj, Nan::New<v8::String>("max_ms").ToLocalChecked(),
       Nan::New<v8::Number>(loop_stats.GetMaximum()));
 
+  slow_tick_count = 0;
   loop_stats.Reset();
   info.GetReturnValue().Set(obj);
 }
