@@ -131,9 +131,9 @@ void CpuProfilerWrapper::LogFilteredProfile(
   uv_fs_t *write_req = new uv_fs_t;
   std::string stack = s.str();
 
-  char *buf = new char[stack.size()];
-  std::memcpy(buf, stack.data(), stack.size());
-  uv_buf_t uvbuf = uv_buf_init(buf, stack.size());
+  write_req->data = new char[stack.size()];
+  std::memcpy(write_req->data, stack.data(), stack.size());
+  uv_buf_t uvbuf = uv_buf_init(static_cast<char*>(write_req->data), stack.size());
 
   uv_fs_write(
     uv_default_loop(),
@@ -146,8 +146,9 @@ void CpuProfilerWrapper::LogFilteredProfile(
 }
 
 void CpuProfilerWrapper::LogWrittenCallback(uv_fs_t *write_req) {
-  if (write_req->bufs) delete[] write_req->bufs[0].base;
   uv_fs_req_cleanup(write_req);
+
+  delete static_cast<char*>(write_req->data);
   delete write_req;
 }
 
