@@ -13,7 +13,7 @@
   },
   "scripts": {
     "pretest": "node-gyp rebuild",
-    "test": "mocha -R spec --check-leaks",
+    "test": "nodeunit test",
     "install" : "node-gyp rebuild"
   },
   "engines": {
