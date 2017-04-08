@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": "https://github.com/chaosgame/edgeswim-uvmon",
   "dependencies": {
-    "nan": "2.0.9"
+    "nan": "^2.6.1"
   },
   "devDependencies": {
     "nodeunit": "0.9.1",
@@ -14,7 +14,7 @@
   "scripts": {
     "pretest": "node-gyp rebuild",
     "test": "nodeunit test",
-    "install" : "node-gyp rebuild"
+    "install": "node-gyp rebuild"
   },
   "engines": {
     "node": ">=0.12.0"
