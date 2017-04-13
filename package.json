@@ -1,11 +1,12 @@
 {
-  "name": "edgeswim-uvmon",
-  "version": "0.2.4",
+  "name": "@apiaryio/uvmon",
+  "version": "1.0.0",
   "author": "Nathan Lawrence <ch@osga.me>",
   "main": "index.js",
-  "repository": "https://github.com/chaosgame/edgeswim-uvmon",
+  "repository": "https://github.com/apiaryio/uvmon",
+  "homepage": "https://github.com/apiaryio/edgeswim-uvmon/blob/master/README.md",
   "dependencies": {
-    "nan": "2.0.9"
+    "nan": "^2.6.1"
   },
   "devDependencies": {
     "nodeunit": "0.9.1",
@@ -14,10 +15,13 @@
   "scripts": {
     "pretest": "node-gyp rebuild",
     "test": "nodeunit test",
-    "install" : "node-gyp rebuild"
+    "install": "node-gyp rebuild"
   },
   "engines": {
     "node": ">=0.12.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.apiary-internal.com"
+  }
 }
